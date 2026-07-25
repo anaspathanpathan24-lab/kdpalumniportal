@@ -50,9 +50,14 @@ class User extends Authenticatable
         return $this->hasMany(JobPosting::class);
     }
 
-    // New relationship for the Resource Vault
     public function resources()
     {
         return $this->hasMany(Resource::class);
+    }
+
+    // New relationship for the Mentorship Navigator
+    public function mentorshipListing()
+    {
+        return $this->hasOne(MentorshipListing::class);
     }
 }
