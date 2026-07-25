@@ -15,6 +15,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     protected $hidden = [
@@ -59,5 +60,10 @@ class User extends Authenticatable
     public function mentorshipListing()
     {
         return $this->hasOne(MentorshipListing::class);
+    }
+    // Helper method to check admin status
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
     }
 }
