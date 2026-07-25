@@ -49,4 +49,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(JobPosting::class);
     }
+
+    // New relationship for the Resource Vault
+    public function resources()
+    {
+        return $this->hasMany(Resource::class);
+    }
 }
