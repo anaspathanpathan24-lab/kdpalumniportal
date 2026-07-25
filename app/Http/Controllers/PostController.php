@@ -9,7 +9,8 @@ class PostController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Post::with('user.profile')->latest();
+        // Added 'comments.user' to eager loading for optimized performance
+        $query = Post::with(['user.profile', 'comments.user'])->latest();
 
         if ($request->has('type') && in_array($request->type, ['knowledge', 'challenge'])) {
             $query->where('type', $request->type);

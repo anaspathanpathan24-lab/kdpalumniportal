@@ -1,82 +1,124 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Alumni Directory') }}
+            {{ __('Knowledge Feed & Challenge Board') }}
         </h2>
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            
+            @if (session('status'))
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                    <span class="block sm:inline">{{ session('status') }}</span>
+                </div>
+            @endif
+
+            <!-- Create Post Form -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Create a Post or Challenge</h3>
                 
-                <!-- Advanced Search & Filter Form -->
-                <form method="GET" action="{{ route('alumni.index') }}" class="mb-6 space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- General Keyword Search -->
-                        <div>
-                            <x-input-label for="search" :value="__('Keyword Search')" />
-                            <x-text-input id="search" name="search" type="text" value="{{ request('search') }}" placeholder="Name, company, department..." class="mt-1 block w-full" />
-                        </div>
-
-                        <!-- Graduation Year Filter -->
-                        <div>
-                            <x-input-label for="graduation_year" :value="__('Graduation Year')" />
-                            <x-text-input id="graduation_year" name="graduation_year" type="text" value="{{ request('graduation_year') }}" placeholder="e.g. 2024" class="mt-1 block w-full" />
-                        </div>
-
-                        <!-- Location Filter -->
-                        <div>
-                            <x-input-label for="location" :value="__('Location')" />
-                            <x-text-input id="location" name="location" type="text" value="{{ request('location') }}" placeholder="e.g. City or Country" class="mt-1 block w-full" />
-                        </div>
+                <form method="POST" action="{{ route('posts.store') }}" class="space-y-4">
+                    @csrf
+                    <div>
+                        <x-input-label for="type" :value="__('Post Type')" />
+                        <select id="type" name="type" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full">
+                            <option value="knowledge">Knowledge Feed (Discussion / Question)</option>
+                            <option value="challenge">Challenge Board (Coding / Puzzle)</option>
+                        </select>
+                        <x-input-error class="mt-2" :messages="$errors->get('type')" />
                     </div>
 
-                    <div class="flex justify-end gap-2">
-                        @if(request()->hasAny(['search', 'graduation_year', 'location']))
-                            <a href="{{ route('alumni.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 focus:bg-gray-300 active:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                {{ __('Reset Filters') }}
-                            </a>
-                        @endif
-                        <x-primary-button>
-                            {{ __('Filter Directory') }}
-                        </x-primary-button>
+                    <div>
+                        <x-input-label for="title" :value="__('Title (Optional)')" />
+                        <x-text-input id="title" name="title" type="text" class="mt-1 block w-full" placeholder="e.g. Best practices for Laravel scaling or Coding Puzzle #1" />
+                        <x-input-error class="mt-2" :messages="$errors->get('title')" />
+                    </div>
+
+                    <div>
+                        <x-input-label for="body" :value="__('Content / Details (Markdown Supported)')" />
+                        <textarea id="body" name="body" rows="4" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full" placeholder="Use Markdown for code blocks like ```php ... ```" required></textarea>
+                        <x-input-error class="mt-2" :messages="$errors->get('body')" />
+                    </div>
+
+                    <div class="flex justify-end">
+                        <x-primary-button>{{ __('Publish Post') }}</x-primary-button>
                     </div>
                 </form>
+            </div>
 
-                <!-- Alumni List Table -->
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Degree / Dept</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company / Title</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grad Year</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse ($alumni as $person)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $person->name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ optional($person->profile)->degree ?? 'N/A' }} - {{ optional($person->profile)->department ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ optional($person->profile)->job_title ?? 'N/A' }} at {{ optional($person->profile)->current_company ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ optional($person->profile)->location ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ optional($person->profile)->graduation_year ?? 'N/A' }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">No alumni matching your filter criteria found.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+            <!-- Tabs -->
+            <div class="flex gap-4">
+                <a href="{{ route('posts.index') }}" class="px-4 py-2 rounded-md font-semibold text-sm {{ request('type') ? 'bg-white text-gray-700 shadow-sm' : 'bg-indigo-600 text-white' }}">All Posts</a>
+                <a href="{{ route('posts.index', ['type' => 'knowledge']) }}" class="px-4 py-2 rounded-md font-semibold text-sm {{ request('type') === 'knowledge' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 shadow-sm' }}">Knowledge Feed</a>
+                <a href="{{ route('posts.index', ['type' => 'challenge']) }}" class="px-4 py-2 rounded-md font-semibold text-sm {{ request('type') === 'challenge' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 shadow-sm' }}">Challenge Board</a>
+            </div>
+
+            <!-- Posts List -->
+            <div class="space-y-6">
+                @forelse ($posts as $post)
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                        <!-- Post Header -->
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-semibold uppercase px-2 py-1 rounded {{ $post->type === 'challenge' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
+                                {{ $post->type }}
+                            </span>
+                            <span class="text-xs text-gray-500">{{ $post->created_at->diffForHumans() }}</span>
+                        </div>
+
+                        <!-- Post Body -->
+                        @if($post->title)
+                            <h4 class="text-xl font-bold text-gray-900 mb-2">{{ $post->title }}</h4>
+                        @endif
+                        <div class="text-gray-700 prose max-w-none mb-4">
+                            {!! Str::markdown($post->body) !!}
+                        </div>
+                        <div class="text-sm text-gray-500 border-t pt-3 flex justify-between items-center">
+                            <span>Posted by: <strong class="text-gray-700">{{ $post->user->name }}</strong> ({{ optional($post->user->profile)->current_company ?? 'Alumni' }})</span>
+                        </div>
+
+                        <!-- Threaded Discussions (Comments) -->
+                        <div class="mt-4 pt-4 border-t border-gray-100 bg-gray-50 rounded-md p-4">
+                            <h5 class="text-sm font-semibold text-gray-700 mb-3">Replies ({{ $post->comments->count() }})</h5>
+                            
+                            <!-- Comment Loop -->
+                            <div class="space-y-4 mb-4">
+                                @foreach ($post->comments as $comment)
+                                    <div class="bg-white p-3 rounded-md shadow-sm text-sm border border-gray-100">
+                                        <div class="font-bold text-gray-900 mb-1">
+                                            {{ $comment->user->name }} 
+                                            <span class="text-xs text-gray-400 font-normal ml-2">{{ $comment->created_at->diffForHumans() }}</span>
+                                        </div>
+                                        <div class="text-gray-700 prose prose-sm max-w-none">
+                                            {!! Str::markdown($comment->body) !!}
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <!-- Comment Form -->
+                            <form method="POST" action="{{ route('comments.store', $post) }}" class="mt-2">
+                                @csrf
+                                <div class="flex gap-2 items-start">
+                                    <textarea name="body" rows="2" class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm" placeholder="Write a reply... (Markdown supported)" required></textarea>
+                                    <x-primary-button class="mt-1 h-10">
+                                        {{ __('Reply') }}
+                                    </x-primary-button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                @empty
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 text-center text-gray-500">
+                        No posts found in the feed yet. Be the first to share something!
+                    </div>
+                @endforelse
 
                 <div class="mt-4">
-                    {{ $alumni->appends(request()->query())->links() }}
+                    {{ $posts->appends(request()->query())->links() }}
                 </div>
             </div>
+
         </div>
     </div>
 </x-app-layout>

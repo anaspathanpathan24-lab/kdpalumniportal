@@ -3,6 +3,7 @@
 use App\Http\Controllers\AlumniDirectoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -24,6 +25,9 @@ Route::middleware('auth')->group(function () {
     // Knowledge Feed & Challenge Board
     Route::get('/feed', [PostController::class, 'index'])->name('posts.index');
     Route::post('/feed', [PostController::class, 'store'])->name('posts.store');
+    
+    // Comments
+    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
 });
 
 require __DIR__.'/auth.php';
