@@ -4,6 +4,7 @@ use App\Http\Controllers\AlumniDirectoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\JobPostingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -15,6 +16,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -28,6 +30,10 @@ Route::middleware('auth')->group(function () {
     
     // Comments
     Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
+
+    // Local Apprenticeship & Job Board
+    Route::get('/jobs', [JobPostingController::class, 'index'])->name('jobs.index');
+    Route::post('/jobs', [JobPostingController::class, 'store'])->name('jobs.store');
 });
 
 require __DIR__.'/auth.php';
