@@ -38,8 +38,8 @@
                     </div>
 
                     <div>
-                        <x-input-label for="body" :value="__('Content / Details')" />
-                        <textarea id="body" name="body" rows="4" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full" placeholder="Share your thoughts, ask a technical question, or post a challenge..." required></textarea>
+                        <x-input-label for="body" :value="__('Content / Details (Markdown Supported)')" />
+                        <textarea id="body" name="body" rows="4" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full" placeholder="Use Markdown for code blocks like ```php ... ```" required></textarea>
                         <x-input-error class="mt-2" :messages="$errors->get('body')" />
                     </div>
 
@@ -77,7 +77,9 @@
                             <h4 class="text-xl font-bold text-gray-900 mb-2">{{ $post->title }}</h4>
                         @endif
 
-                        <p class="text-gray-700 whitespace-pre-line mb-4">{{ $post->body }}</p>
+                        <div class="text-gray-700 prose max-w-none mb-4">
+                            {!! Str::markdown($post->body) !!}
+                        </div>
 
                         <div class="text-sm text-gray-500 border-t pt-3 flex justify-between items-center">
                             <span>Posted by: <strong class="text-gray-700">{{ $post->user->name }}</strong> ({{ optional($post->user->profile)->current_company ?? 'Alumni' }})</span>
