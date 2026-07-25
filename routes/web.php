@@ -6,6 +6,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\JobPostingController;
 use App\Http\Controllers\ResourceController;
+use App\Http\Controllers\MentorshipController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -39,6 +40,10 @@ Route::middleware('auth')->group(function () {
     // Resource Vault
     Route::get('/resources', [ResourceController::class, 'index'])->name('resources.index');
     Route::post('/resources', [ResourceController::class, 'store'])->name('resources.store');
+
+    // Diploma-to-Degree Navigator (Mentorship)
+    Route::get('/mentorship', [MentorshipController::class, 'index'])->name('mentorship.index');
+    Route::post('/mentorship', [MentorshipController::class, 'store'])->name('mentorship.store');
 });
 
 require __DIR__.'/auth.php';
