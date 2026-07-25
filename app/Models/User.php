@@ -30,9 +30,14 @@ class User extends Authenticatable
         ];
     }
 
-    // Add this relationship method:
     public function profile()
     {
         return $this->hasOne(Profile::class);
+    }
+
+    // Add this relationship for posts:
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
     }
 }
