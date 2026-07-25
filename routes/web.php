@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\IdCardController;
 use App\Http\Controllers\AlumniDirectoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PostController;
@@ -38,12 +39,18 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/mentorship', [MentorshipController::class, 'index'])->name('mentorship.index');
     Route::post('/mentorship', [MentorshipController::class, 'store'])->name('mentorship.store');
+
+    Route::get('/id-card', [IdCardController::class, 'show'])->name('id-card.show');
 });
 
 // Admin Only Routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
+
+// Notice routes
+    Route::post('/notices', [AdminController::class, 'storeNotice'])->name('notices.store');
+    Route::delete('/notices/{notice}', [AdminController::class, 'destroyNotice'])->name('notices.destroy');    
 });
 
 require __DIR__.'/auth.php';
