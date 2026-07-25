@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\JobPostingController;
+use App\Http\Controllers\ResourceController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -34,6 +35,10 @@ Route::middleware('auth')->group(function () {
     // Local Apprenticeship & Job Board
     Route::get('/jobs', [JobPostingController::class, 'index'])->name('jobs.index');
     Route::post('/jobs', [JobPostingController::class, 'store'])->name('jobs.store');
+
+    // Resource Vault
+    Route::get('/resources', [ResourceController::class, 'index'])->name('resources.index');
+    Route::post('/resources', [ResourceController::class, 'store'])->name('resources.store');
 });
 
 require __DIR__.'/auth.php';
