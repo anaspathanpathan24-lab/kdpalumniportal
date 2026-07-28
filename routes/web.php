@@ -9,10 +9,29 @@ use App\Http\Controllers\JobPostingController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\MentorshipController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\OnboardingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+// Authentication Routes (Socialite & Email Login)
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
+
+Route::get('/auth/google', [LoginController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [LoginController::class, 'handleGoogleCallback']);
+Route::post('/login/email', [LoginController::class, 'loginWithEmail'])->name('login.email');
+
+
+
+// Onboarding Route (Fallback if authenticated user lacks role details)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding');
+    Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
 });
 
 Route::get('/dashboard', function () {
@@ -48,9 +67,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
 
-// Notice routes
+    // Notice routes
     Route::post('/notices', [AdminController::class, 'storeNotice'])->name('notices.store');
     Route::delete('/notices/{notice}', [AdminController::class, 'destroyNotice'])->name('notices.destroy');    
 });
 
 require __DIR__.'/auth.php';
+
+// OVERRIDE: Custom Register Routes (Placed at the bottom to take absolute precedence)
+Route::get('/register', function () {
+    return view('auth.register');
+})->name('register');
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/register', [OnboardingController::class, 'store'])->name('register.store');
+});

@@ -26,6 +26,13 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            // New custom fields added below:
+            'phone' => ['nullable', 'string', 'max:20'],
+            'degree' => ['nullable', 'string', 'max:255'],
+            'department' => ['nullable', 'string', 'max:255'],
+            'year_joining' => ['nullable', 'string'],
+            'graduation_year' => ['nullable', 'string'],
+            'entry_no' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

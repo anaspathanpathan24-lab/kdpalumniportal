@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -16,53 +17,53 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        // Ensure profile exists for the user
-        $request->user()->profile()->firstOrCreate(['user_id' => $request->user()->id]);
-
         return view('profile.edit', [
-            'user' => $request->user()->load('profile'),
+            'user' => $request->user(),
         ]);
     }
 
     /**
      * Update the user's profile information.
      */
-    public function update(Request $request): RedirectResponse
+    public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $user = $request->user();
+        // 1. Update basic user info (Name, Email)
+        $request->user()->fill($request->validated());
 
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            'graduation_year' => ['nullable', 'string', 'max:10'],
-            'degree' => ['nullable', 'string', 'max:255'],
-            'department' => ['nullable', 'string', 'max:255'],
-            'current_company' => ['nullable', 'string', 'max:255'],
-            'job_title' => ['nullable', 'string', 'max:255'],
-            'location' => ['nullable', 'string', 'max:255'],
-            'bio' => ['nullable', 'string'],
-        ]);
-
-        $user->fill($request->only('name', 'email'));
-
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
+        if ($request->user()->isDirty('email')) {
+            $request->user()->email_verified_at = null;
         }
 
-        $user->save();
+        $request->user()->save();
 
-        // Update or create profile fields
-        $user->profile()->updateOrCreate(
-            ['user_id' => $user->id],
-            $request->only([
-                'graduation_year',
-                'degree',
-                'department',
-                'current_company',
-                'job_title',
-                'location',
-                'bio',
-            ])
+        // 2. Handle Profile Photo Upload
+        $photoPath = $request->user()->profile->photo_path ?? null;
+
+        if ($request->hasFile('photo')) {
+            $request->validate([
+                'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            ]);
+            
+            // Delete old photo from storage if a new one is uploaded
+            if ($photoPath && Storage::disk('public')->exists($photoPath)) {
+                Storage::disk('public')->delete($photoPath);
+            }
+
+            $photoPath = $request->file('photo')->store('profile-photos', 'public');
+        }
+
+        // 3. Update or Create the custom Profile data
+        $request->user()->profile()->updateOrCreate(
+            ['user_id' => $request->user()->id],
+            [
+                'degree' => $request->degree,
+                'department' => $request->department,
+                'graduation_year' => $request->graduation_year,
+                'current_company' => $request->current_company,
+                'job_title' => $request->job_title,
+                'location' => $request->location,
+                'photo_path' => $photoPath,
+            ]
         );
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
@@ -79,12 +80,17 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
+        // Delete profile photo from storage before deleting user
+        if (isset($user->profile->photo_path) && Storage::disk('public')->exists($user->profile->photo_path)) {
+            Storage::disk('public')->delete($user->profile->photo_path);
+        }
+
         Auth::logout();
 
         $user->delete();
 
-        $request->invalidate();
-        $request->regenerateToken();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return Redirect::to('/');
     }

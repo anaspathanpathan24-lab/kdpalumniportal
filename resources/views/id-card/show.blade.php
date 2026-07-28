@@ -11,7 +11,8 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex justify-center">
+        <!-- Added id-card-wrapper for targeted print centering -->
+        <div id="id-card-wrapper" class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex justify-center">
             
             <!-- ID Card Container -->
             <div class="bg-white w-80 md:w-96 rounded-xl shadow-2xl overflow-hidden border border-gray-200 print:shadow-none print:border-gray-400">
@@ -29,10 +30,14 @@
                         ID: {{ str_pad($user->id, 6, '0', STR_PAD_LEFT) }}
                     </div>
 
-                    <!-- Profile Photo Placeholder -->
-                    <div class="w-24 h-24 bg-gray-200 rounded-full border-4 border-white shadow-md flex items-center justify-center text-3xl font-bold text-gray-500 mb-4 overflow-hidden">
-                        {{ strtoupper(substr($user->name, 0, 1)) }}
-                    </div>
+                    <!-- Profile Photo or Fallback Placeholder -->
+                    @if(optional($user->profile)->photo_path)
+                        <img src="{{ asset('storage/' . $user->profile->photo_path) }}" alt="Profile Photo" class="w-24 h-24 rounded-full border-4 border-white shadow-md object-cover mb-4">
+                    @else
+                        <div class="w-24 h-24 bg-gray-200 rounded-full border-4 border-white shadow-md flex items-center justify-center text-3xl font-bold text-gray-500 mb-4 overflow-hidden">
+                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                        </div>
+                    @endif
 
                     <!-- User Details -->
                     <h2 class="text-2xl font-bold text-gray-900 text-center">{{ $user->name }}</h2>
@@ -49,7 +54,7 @@
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-500 font-medium">Blood Group:</span>
-                            <span class="text-red-600 font-bold text-right">O+</span> <!-- Hardcoded for aesthetic, could be added to DB later -->
+                            <span class="text-red-600 font-bold text-right">O+</span>
                         </div>
                     </div>
                 </div>
@@ -65,18 +70,29 @@
     </div>
 
     <style>
-        /* Hide navbar and layout elements when printing */
         @media print {
+            /* This removes the default browser headers and footers (date, localhost URL) */
+            @page {
+                margin: 0mm; 
+                size: portrait;
+            }
+            body {
+                margin: 0;
+                background-color: white;
+            }
             body * {
                 visibility: hidden;
             }
-            .max-w-7xl, .max-w-7xl * {
+            /* Only show the ID card wrapper and its contents */
+            #id-card-wrapper, #id-card-wrapper * {
                 visibility: visible;
             }
-            .max-w-7xl {
-                position: absolute;
-                left: 0;
-                top: 0;
+            /* Center the wrapper exactly in the middle of the printed page */
+            #id-card-wrapper {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
                 width: 100%;
                 margin: 0;
                 padding: 0;

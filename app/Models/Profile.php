@@ -18,6 +18,7 @@ class Profile extends Model
         'job_title',
         'location',
         'bio',
+        'photo_path',
     ];
 
     public function user()
