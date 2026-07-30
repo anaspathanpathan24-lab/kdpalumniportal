@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <!-- Rich Header Banner with Image & Gradient Overlay -->
+    <!-- Rich Header Banner with Image & Gradient Overlay code -->
     <div class="relative w-full h-64 flex items-center justify-center overflow-hidden shadow-md">
         <!-- Background Image -->
         <img src="https://picsum.photos/id/1073/1920/600" class="absolute inset-0 w-full h-full object-cover" alt="Profile Background">
