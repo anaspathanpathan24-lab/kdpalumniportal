@@ -71,7 +71,7 @@
                 </form>
             </div>
 
-            <!-- Job Listings -->
+            <!-- Job Listings code here -->
             <div class="space-y-4">
                 <h3 class="text-lg font-medium text-gray-900 mt-8 mb-4">Latest Opportunities</h3>
                 
