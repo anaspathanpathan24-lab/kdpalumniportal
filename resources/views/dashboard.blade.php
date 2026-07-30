@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <!-- 1. Hero Image & Welcome Ribbon (IITDAA Style) -->
+    <!-- 1. Hero Image & Welcome Ribbon (IITDAA Style) code -->
     <div class="relative w-full">
         <img src="https://picsum.photos/id/1073/1920/500" class="w-full h-[350px] md:h-[500px] object-cover" alt="Alumni Event">
         <div class="bg-brand-maroon text-white text-center py-6 px-4 shadow-md">
